@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "workspaces": [
+    "examples/helloworld",
+    "examples/login",
+    "examples/with-pug"
+  ],
+  "scripts": {
+    "prettier:check": "prettier --check examples/**/*.{js,json}",
+    "prettier": "prettier --write examples/**/*.{js,json}"
+  },
+  "devDependencies": {
+    "prettier": "^2.2.1"
+  }
+}
