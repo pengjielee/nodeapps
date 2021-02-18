@@ -3,11 +3,12 @@
   "workspaces": [
     "examples/helloworld",
     "examples/login",
-    "examples/with-pug"
+    "examples/with-pug",
+    "examples/upload"
   ],
   "scripts": {
     "prettier:check": "prettier --check examples/**/*.{js,json}",
-    "prettier": "prettier --write examples/**/*.{js,json}"
+    "prettier": "prettier --write examples/**/*.{js,json} examples/**/**/*.{js,hbs} examples/**/**/**/*.hbs"
   },
   "devDependencies": {
     "prettier": "^2.2.1"

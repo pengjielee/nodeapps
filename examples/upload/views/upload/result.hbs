@@ -1,0 +1,13 @@
+{{!< ../default}}
+
+<div class="page-upload-success">
+  <h1>{{ title }}</h1>
+  <ul class="upload-list">
+    {{#each files}}
+    <li class="upload-item">
+      <span>{{ this.name }}</span>
+      <a href="../{{ this.src }}" class="upload-preview" target="_blank">preview</a>
+    </li>
+    {{/each}}
+  </ul>
+</div>

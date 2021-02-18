@@ -1,0 +1,74 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+ul li {
+	list-style-type: none;
+}
+a {
+	text-decoration: none;
+}
+
+.page-form-upload .container{
+  margin: 30px auto;
+  width: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+} 
+.page-form-upload .container .input {
+  margin-bottom: 15px;
+  width: 100%;
+}
+.page-form-upload .container .btn {
+  padding: 6px 0;
+  border: none;
+  width: 100%;
+}
+.page-form-upload .container .avatar {
+	max-width: 150px;
+	border-radius: 50%;
+	margin: 20px 0;
+}
+.page-form-upload .form {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 100%;
+}
+.page-form-upload .container .title {
+	margin-bottom: 15px;
+}
+.page-form-upload .container .error {
+	color: red;
+	font-size: 14px;
+	margin: 5px 0;
+}
+
+.upload-list {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	width: 100%;
+}
+.upload-list .upload-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 10px 0;
+	border-bottom: 1px solid #ddd;
+}
+.upload-list .upload-item .upload-img {
+	max-width: 100px;
+}
+.upload-list .upload-item .upload-preview {
+
+}
+
+.page-upload-success {
+	text-align: center;
+	width: 800px;
+	margin: 50px auto;
+}
