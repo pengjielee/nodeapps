@@ -9,7 +9,8 @@ function create(hbs, env) {
   var bodyParser = require('body-parser');
   var fs = require('fs');
   var fp = require('path');
-  var indexRouter = require('./router');
+  var uploadRouter = require('./routes/upload');
+  var readerRouter = require('./routes/reader');
 
   function relative(path) {
     return fp.join(__dirname, path);
@@ -61,7 +62,8 @@ function create(hbs, env) {
   //   });
   // });
 
-  app.use('/', indexRouter);
+  app.use('/', uploadRouter);
+  app.use('/reader', readerRouter);
 
   return app;
 }

@@ -11,6 +11,32 @@ a {
   text-decoration: none;
 }
 
+body {
+  padding: 30px;
+}
+
+.page-upload {
+  margin: 0 auto;
+  width: 500px;
+}
+.page-upload li {
+  list-style-type: decimal-leading-zero;
+  padding: 10px 0;
+}
+
+.page-reader .card {
+  margin-bottom: 20px;
+}
+.page-reader .title {
+  margin-bottom: 10px;
+}
+.page-reader .input {
+  margin-bottom: 10px;
+}
+.page-reader .preview {
+  font-size: 14px;
+}
+
 .page-form-upload .container {
   margin: 30px auto;
   width: 500px;

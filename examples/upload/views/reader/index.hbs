@@ -1,0 +1,62 @@
+{{!< ../default}}
+
+<div class="page page-reader" id="page">
+  <section class="card">
+    <h4 class="title">读取文本文件</h4>
+    <input type="file" class="input" accept="text/*" />
+    <div class="preview"></div>
+  </section>
+
+  <section class="card">
+    <h4 class="title">读取图片文件</h4>
+    <input type="file" class="input" accept="image/*" />
+    <div class="preview"></div>
+  </section>
+
+  <section class="card">
+    <h4 class="title">读取其他文件</h4>
+    <input type="file" class="input" />
+    <div class="preview"></div>
+  </section>
+</div>
+
+{{#contentFor 'pageScripts'}}
+<script>
+  const page = document.querySelector('#page');
+
+  page.addEventListener(
+    'change',
+    function (e) {
+      let that = e.target;
+      let dom = e.target.tagName.toLowerCase();
+      if (dom === 'input') {
+        const accept = that.getAttribute('accept') || '';
+        const file = that.files[0];
+        const reader = new FileReader();
+        if (accept.indexOf('image') > -1) {
+          reader.onload = function (evt) {
+            const content = evt.target.result;
+            const img = document.createElement('img');
+            img.src = content;
+            that.nextElementSibling.innerHTML = '';
+            that.nextElementSibling.appendChild(img);
+          };
+          reader.readAsDataURL(file);
+        } else if (accept.indexOf('text') > -1) {
+          reader.onload = function (evt) {
+            const content = evt.target.result;
+            that.nextElementSibling.innerHTML = content;
+          };
+          reader.readAsText(file);
+        } else {
+          reader.onload = function (evt) {
+            const content = evt.target.result;
+          };
+          reader.readAsBinaryString(file);
+        }
+      }
+    },
+    false,
+  );
+</script>
+{{/contentFor}}

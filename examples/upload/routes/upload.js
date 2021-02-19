@@ -5,7 +5,7 @@ const fs = require('fs-extra');
 const multer = require('multer');
 const router = express.Router();
 
-const uploadDir = path.join(__dirname, './public/uploads');
+const uploadDir = path.join(__dirname, '../public/uploads');
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -42,7 +42,7 @@ const uploadChunk = multer({ dest: uploadDir }).single('file');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
-  res.render('index', { title: 'Express' });
+  res.render('upload/index', { title: 'Express' });
 });
 
 /* 头像上传 GET/POST */
