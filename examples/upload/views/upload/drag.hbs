@@ -3,21 +3,40 @@
 <div class="page-form-upload">
   <section class="container">
     <h1 class="title">拖拽上传</h1>
-    <img src="{{ avatar }}" class="avatar" />
-    <form action="/upload/avatar" method="post" enctype="multipart/form-data" class="form">
-      <input type="file" name="avatar" accept="image/*" required="true" class="input" id="fileInput" />
-      <button class="btn">上传</button>
-      <div class="error">{{ message }}</div>
-    </form>
+
+    <div id="dropzone" class="fade well dropzone" ondrop="handleDrop(event)" ondragover="handleDragOver(event)">
+      <span>Drop files here</span>
+      <form action="/api/upload" method="post" enctype="multipart/form-data" class="form">
+        <input type="file" name="photos" accept="image/*" required="true" multiple class="input" id="fileElem" />
+      </form>
+    </div>
+    <div>
+      <progress id="fileProgress" max="100" value="0" style="display: none">0%</progress>
+    </div>
+    <div class="file-list" id="fileList"></div>
   </section>
 </div>
 
 {{#contentFor 'pageScripts'}}
 <script>
-  window.onload = function () {
-    document.querySelector('#fileInput').onchange = function () {
-      document.querySelector('.error').innerHTML = '';
-    };
-  };
+  const fileList = document.getElementById('fileList');
+  const fileProgress = document.getElementById('fileProgress');
+  const fileElem = document.getElementById('fileElem');
+  //选择图片
+  fileElem.addEventListener('change', function(){
+    const files = this.files;
+    uploadFiles(files, fileList, fileProgress);
+  }, false);
+  function handleDragOver(ev) {
+    ev.preventDefault();
+    ev.dataTransfer.dropEffect = 'move';
+  }
+  function handleDrop(ev) {
+    ev.stopPropagation();
+    ev.preventDefault();
+    var data = ev.dataTransfer;
+    var files = data.files;
+    uploadFiles(files, fileList, fileProgress);
+  }
 </script>
 {{/contentFor}}
