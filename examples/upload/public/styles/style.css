@@ -72,3 +72,43 @@ a {
 	width: 800px;
 	margin: 50px auto;
 }
+
+.page-ajax-upload {
+	margin: 30px;
+}
+
+.file-select {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100px;
+  height: 100px;
+  border: 1px solid #999;
+}
+
+.file-preview {
+	display: flex;
+}
+.file-preview .file-item {
+	position: relative;
+	margin-right: 10px;
+}
+.file-preview .file-item img{
+	width: 100px;
+	height: 100px;
+}
+.file-preview .file-item .file-remove{
+	position: absolute;
+  top: 0;
+  right: 0;
+  background: #ddd;
+  color: #fff;
+  padding: 0 5px;
+  cursor: pointer;
+}
+.btn-upload {
+	border: 1px solid #ddd;
+	margin: 10px 0;
+	padding: 5px 10px;
+	width: 100px;
+}

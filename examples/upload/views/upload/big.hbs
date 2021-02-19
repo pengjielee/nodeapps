@@ -1,0 +1,23 @@
+{{!< ../default}}
+
+<div class="page-form-upload">
+  <section class="container">
+    <h1 class="title">上传大文件</h1>
+    <img src="{{ avatar }}" class="avatar" />
+    <form action="/upload/avatar" method="post" enctype="multipart/form-data" class="form">
+      <input type="file" name="avatar" accept="image/*" required="true" class="input" id="fileInput" />
+      <button class="btn">上传</button>
+      <div class="error">{{ message }}</div>
+    </form>
+  </section>
+</div>
+
+{{#contentFor 'pageScripts'}}
+<script>
+  window.onload = function () {
+    document.querySelector('#fileInput').onchange = function () {
+      document.querySelector('.error').innerHTML = '';
+    };
+  };
+</script>
+{{/contentFor}}

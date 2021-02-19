@@ -44,11 +44,10 @@ router.get('/', function (req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
-/* 上传头像 get/post */
+/* 头像上传 GET/POST */
 router.get('/upload/avatar', (req, res) => {
-  res.render('upload/avatar', { title: '上传头像' });
+  res.render('upload/avatar', { title: '头像上传' });
 });
-
 router.post('/upload/avatar', (req, res) => {
   const title = '上传头像';
   uploadAvatar(req, res, function (err) {
@@ -66,11 +65,10 @@ router.post('/upload/avatar', (req, res) => {
   });
 });
 
-/* 上传多张图片 get/post */
+/* 多张图片上传 GET/POST */
 router.get('/upload/photos', (req, res) => {
-  res.render('upload/photos', { title: '上传多张图片' });
+  res.render('upload/photos', { title: '多张图片上传' });
 });
-
 router.post('/upload/photos', (req, res) => {
   const title = '上传头像';
   uploadPhotos(req, res, function (err) {
@@ -85,7 +83,6 @@ router.post('/upload/photos', (req, res) => {
         item.name = item.originalname;
         return item;
       });
-      console.log(photos);
       res.render('upload/photos', { title: title, photos: photos });
     } else {
       res.render('upload/photos', { title: title, message: '请选择一个文件' });
@@ -93,11 +90,10 @@ router.post('/upload/photos', (req, res) => {
   });
 });
 
-/* 表单上传图片 get/post */
+/* Form上传 GET/POST */
 router.get('/upload/form', (req, res) => {
-  res.render('upload/form', { title: 'Form上传文件' });
+  res.render('upload/form', { title: 'Form上传' });
 });
-
 router.post('/upload/form', (req, res, next) => {
   const form = formidable({
     multiples: true,
@@ -130,6 +126,42 @@ router.post('/upload/form', (req, res, next) => {
       return item;
     });
     res.render('upload/result', { title: '上传成功', files: files });
+  });
+});
+
+/* Ajax上传 GET */
+router.get('/upload/ajax', (req, res) => {
+  res.render('upload/ajax', { title: 'Ajax上传' });
+});
+
+/* 拖拽上传 GET */
+router.get('/upload/drag', (req, res) => {
+  res.render('upload/drag', { title: '拖拽上传' });
+});
+
+/* 大文件上传 GET */
+router.get('/upload/big', (req, res) => {
+  res.render('upload/big', { title: '大文件上传' });
+});
+
+router.post('/api/upload', (req, res) => {
+  const title = '上传头像';
+  uploadPhotos(req, res, function (err) {
+    if (err) {
+      res.json({ status: 0, message: '只能上传png/jpg/jpeg格式图片', data: [] });
+      return;
+    }
+    if (req.files && req.files.length > 0) {
+      const photos = req.files.map(item => {
+        const idx = item.path.indexOf('/uploads/');
+        item.src = item.path.slice(idx);
+        item.name = item.originalname;
+        return item;
+      });
+      res.json({ status: 1, message: 'ok', data: photos });
+    } else {
+      res.json({ status: 0, message: '请选择一个文件', data: [] });
+    }
   });
 });
 

@@ -1,0 +1,174 @@
+{{!< ../default}}
+
+<div class="page-ajax-upload">
+  <section class="container" style="display: none">
+    <h1 class="title">Ajax上传</h1>
+    <form class="file-form" method="post" enctype="multipart/form-data" name="uploadFrom" id="uploadFrom">
+      <input class="file-input" type="file" name="photos" multiple required id="fileInput" />
+    </form>
+  </section>
+  <section class="file-upload">
+    <input type="file" multiple accept="image/*" style="display: none" id="fileElem" />
+
+    <div class="file-preview" id="filePreview">
+      <div class="file-select" id="fileSelect">
+        <svg
+          t="1613701291333"
+          class="icon"
+          viewBox="0 0 1024 1024"
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+          p-id="5016"
+          width="64"
+          height="64"
+        >
+          <path
+            d="M832 480H544V192a32 32 0 0 0-64 0v288H192a32 32 0 0 0 0 64h288v288a32 32 0 0 0 64 0V544h288a32 32 0 0 0 0-64z"
+            p-id="5017"
+            fill="#999"
+          ></path>
+        </svg>
+      </div>
+    </div>
+
+    <button class="btn btn-upload" id="fileUpload">Upload</button>
+    <div class="file-list" id="fileList"></div>
+  </section>
+</div>
+
+{{#contentFor 'pageScripts'}}
+<script>
+  // document.getElementById('fileInput').onchange = function () {
+  //   var form = document.forms.namedItem('uploadFrom');
+  //   var formData = new FormData(form);
+  //   var xhr = new XMLHttpRequest();
+  //   xhr.onload = function (e) {
+  //     if (xhr.status === 200) {
+  //       var response = JSON.parse(xhr.responseText);
+  //       var html = [];
+  //       if (response.status === 1) {
+  //         response.data.forEach(function (item, index) {
+  //           html.push(`
+  //           <li>
+  //             <a href="${item.src}" target="_blank">${item.name}</a>
+  //           </li>
+  //         `);
+  //         });
+  //         document.getElementById('fileList').innerHTML = html.join('');
+  //         document.getElementById('fileInput').value = '';
+  //       } else {
+  //         alert(response.message);
+  //       }
+  //     }
+  //   };
+  //   xhr.open('POST', '/api/upload');
+  //   xhr.send(formData);
+  // };
+
+  const fileSelect = document.getElementById('fileSelect');
+  const fileElem = document.getElementById('fileElem');
+  const filePreview = document.getElementById('filePreview');
+  const fileUpload = document.getElementById('fileUpload');
+  const fileList = document.getElementById('fileList');
+
+  function handleFiles() {
+    const files = this.files;
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+
+      if (!file.type.startsWith('image/')) {
+        continue;
+      }
+
+      const img = document.createElement('img');
+      img.classList.add('obj');
+      img.file = file;
+
+      const remove = document.createElement('span');
+      remove.textContent = 'x';
+      remove.classList.add('file-remove');
+
+      const container = document.createElement('div');
+      container.classList.add('file-item');
+      container.appendChild(img);
+      container.appendChild(remove);
+
+      filePreview.prepend(container);
+
+      const reader = new FileReader();
+      reader.onload = (function (aImg) {
+        return function (e) {
+          aImg.src = e.target.result;
+        };
+      })(img);
+      reader.readAsDataURL(file);
+    }
+  }
+
+  //添加图片
+  fileSelect.addEventListener(
+    'click',
+    function (e) {
+      if (fileElem) {
+        fileElem.click();
+      }
+    },
+    false,
+  );
+
+  //选择图片
+  fileElem.addEventListener('change', handleFiles, false);
+
+  //删除图片
+  filePreview.addEventListener(
+    'click',
+    function (e) {
+      let that = e.target;
+      let dom = e.target.tagName.toLowerCase();
+      if (dom === 'span') {
+        that.parentNode.remove();
+      }
+    },
+    false,
+  );
+
+  //上传图片
+  fileUpload.addEventListener(
+    'click',
+    function (e) {
+      const files = fileElem.files;
+      if (files.length <= 0) {
+        alert('请至少选择一个文件');
+        return;
+      }
+
+      var formData = new FormData();
+      for (let i = 0; i < files.length; i++) {
+        formData.append('photos', files[i]);
+      }
+      var xhr = new XMLHttpRequest();
+      xhr.onload = function (e) {
+        if (xhr.status === 200) {
+          var response = JSON.parse(xhr.responseText);
+          var html = [];
+          if (response.status === 1) {
+            response.data.forEach(function (item, index) {
+              html.push(`
+                <li>
+                  <a href="${item.src}" target="_blank">${item.name}</a>
+                </li>
+              `);
+            });
+            fileList.innerHTML = html.join('');
+          } else {
+            alert(response.message);
+          }
+        }
+      };
+      xhr.open('POST', '/api/upload');
+      xhr.send(formData);
+    },
+    false,
+  );
+</script>
+{{/contentFor}}
