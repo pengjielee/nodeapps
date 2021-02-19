@@ -1,7 +1,7 @@
 const express = require('express');
 const formidable = require('formidable');
 const path = require('path');
-const fs = require('fs');
+const fs = require('fs-extra');
 const multer = require('multer');
 const router = express.Router();
 
@@ -38,6 +38,7 @@ const upload = multer({
 
 const uploadAvatar = upload.single('avatar');
 const uploadPhotos = upload.array('photos');
+const uploadChunk = multer({ dest: uploadDir }).single('file');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
@@ -140,12 +141,11 @@ router.get('/upload/drag', (req, res) => {
 });
 
 /* 大文件上传 GET */
-router.get('/upload/big', (req, res) => {
-  res.render('upload/big', { title: '大文件上传' });
+router.get('/upload/bigfile', (req, res) => {
+  res.render('upload/bigfile', { title: '大文件上传' });
 });
 
 router.post('/api/upload', (req, res) => {
-  const title = '上传头像';
   uploadPhotos(req, res, function (err) {
     if (err) {
       res.json({ status: 0, message: '只能上传png/jpg/jpeg格式图片', data: [] });
@@ -162,6 +162,52 @@ router.post('/api/upload', (req, res) => {
     } else {
       res.json({ status: 0, message: '请选择一个文件', data: [] });
     }
+  });
+});
+
+router.post('/api/chunk/upload', (req, res) => {
+  uploadChunk(req, res, function (err) {
+    if (err) {
+      return;
+    }
+    const { name, total, index, size, hash } = req.body;
+    const chunksPath = path.join(uploadDir, hash, '/');
+    if (!fs.existsSync(chunksPath)) {
+      fs.mkdirSync(chunksPath);
+    }
+    fs.renameSync(req.file.path, chunksPath + hash + '-' + index);
+    res.status = 200;
+    res.end(0);
+  });
+});
+
+router.post('/api/chunk/merge', (req, res) => {
+  const form = formidable({ multiples: true });
+
+  form.parse(req, (err, fields, files) => {
+    if (err) {
+      next(err);
+      return;
+    }
+    let { size, name, total, hash } = fields;
+    total = +total;
+    const chunksPath = path.join(uploadDir, hash, '/');
+    const filePath = path.join(uploadDir, name);
+    const chunks = fs.readdirSync(chunksPath);
+    // 创建存储文件
+    fs.writeFileSync(filePath, '');
+    if (chunks.length !== total || chunks.length === 0) {
+      res.status = 200;
+      res.end('number error');
+      return;
+    }
+    for (let i = 1; i <= total; i++) {
+      fs.appendFileSync(filePath, fs.readFileSync(chunksPath + hash + '-' + i));
+      fs.unlinkSync(chunksPath + hash + '-' + i);
+    }
+    fs.rmdirSync(chunksPath);
+    res.status = 200;
+    res.end('success');
   });
 });
 

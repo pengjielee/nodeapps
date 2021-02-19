@@ -23,10 +23,14 @@
   const fileProgress = document.getElementById('fileProgress');
   const fileElem = document.getElementById('fileElem');
   //选择图片
-  fileElem.addEventListener('change', function(){
-    const files = this.files;
-    uploadFiles(files, fileList, fileProgress);
-  }, false);
+  fileElem.addEventListener(
+    'change',
+    function () {
+      const files = this.files;
+      uploadFiles(files, fileList, fileProgress);
+    },
+    false,
+  );
   function handleDragOver(ev) {
     ev.preventDefault();
     ev.dataTransfer.dropEffect = 'move';

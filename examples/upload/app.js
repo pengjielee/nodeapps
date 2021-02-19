@@ -6,6 +6,7 @@ function create(hbs, env) {
 
   var express = require('express');
   var app = express();
+  var bodyParser = require('body-parser');
   var fs = require('fs');
   var fp = require('path');
   var indexRouter = require('./router');
@@ -13,6 +14,12 @@ function create(hbs, env) {
   function relative(path) {
     return fp.join(__dirname, path);
   }
+
+  // parse application/x-www-form-urlencoded
+  app.use(bodyParser.urlencoded({ extended: false }));
+
+  // parse application/json
+  app.use(bodyParser.json());
 
   var viewsDir = relative('views');
 

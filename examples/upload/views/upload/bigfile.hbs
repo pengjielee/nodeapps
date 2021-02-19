@@ -1,0 +1,108 @@
+{{!< ../default}}
+
+<div class="page-form-upload">
+  <section class="container">
+    <h1 class="title">上传大文件</h1>
+    <input type="file" name="bigfile" required="true" class="input" id="fileElem" />
+    <button class="btn" id="fileUpload">上传</button>
+  </section>
+</div>
+
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/spark-md5/3.0.0/spark-md5.min.js"
+  integrity="sha512-5Cmi5XQym+beE9VUPBgqQnDiUhiY8iJU+uCUbZIdWFmDNI+9u3A7ntfO8fRkigdZCRrbM+DSpSHSXAuOn5Ajbg=="
+  crossorigin="anonymous"
+></script>
+{{#contentFor 'pageScripts'}}
+<script>
+  const fileElem = document.querySelector('#fileElem');
+  const fileUpload = document.querySelector('#fileUpload');
+  const CHUNK_SIZE = 2 * 1024 * 1024; //切片大小2MB
+
+  function slice(file, piece = 1024 * 1024 * 5) {
+    let totalSize = file.size; // 文件总大小
+    let start = 0; // 每次上传的开始字节
+    let end = start + piece; // 每次上传的结尾字节
+    let chunks = [];
+    while (start < totalSize) {
+      let blob = file.slice(start, end);
+      chunks.push(blob);
+
+      start = end;
+      end = start + piece;
+    }
+    return chunks;
+  }
+
+  function uploadChunk(fd) {
+    return new Promise((resolve, reject) => {
+      var xhr = new XMLHttpRequest();
+      xhr.onload = function (e) {
+        if (xhr.status === 200) {
+          resolve(xhr.responseText);
+        } else {
+          reject('error');
+        }
+      };
+      xhr.onerror = function (e) {
+        reject(e);
+      };
+      xhr.open('POST', '/api/chunk/upload');
+      xhr.send(fd);
+    });
+  }
+
+  function mergeChunk(fd) {
+    return new Promise((resolve, reject) => {
+      var xhr = new XMLHttpRequest();
+
+      xhr.onload = function (e) {
+        if (xhr.status === 200) {
+          resolve(xhr.responseText);
+        } else {
+          reject('error');
+        }
+      };
+      xhr.onerror = function (e) {
+        reject(e);
+      };
+      xhr.open('POST', '/api/chunk/merge');
+      // xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+      xhr.send(fd);
+    });
+  }
+
+  function createTasks(file, chunks) {
+    let tasks = [];
+    chunks.forEach((chunk, index) => {
+      let fd = new FormData();
+      fd.append('file', chunk);
+      fd.append('index', index + 1);
+      fd.append('name', file.name);
+      fd.append('size', file.size);
+      fd.append('total', chunks.length);
+      fd.append('hash', file.name + file.size);
+      tasks.push(uploadChunk(fd));
+    });
+    return tasks;
+  }
+
+  fileUpload.addEventListener(
+    'click',
+    function () {
+      const file = fileElem.files[0];
+      let chunks = slice(file, CHUNK_SIZE);
+      const tasks = createTasks(file, chunks);
+      Promise.all(tasks).then(res => {
+        let fd = new FormData();
+        fd.append('name', file.name);
+        fd.append('size', file.size);
+        fd.append('total', chunks.length);
+        fd.append('hash', file.name + file.size);
+        mergeChunk(fd).then(res => console.log(res));
+      });
+    },
+    false,
+  );
+</script>
+{{/contentFor}}
