@@ -32,6 +32,9 @@
     </div>
 
     <button class="btn btn-upload" id="fileUpload">Upload</button>
+    <div>
+      <progress id="fileProgress" max="100" value="0" style="display: none">0%</progress>
+    </div>
     <div class="file-list" id="fileList"></div>
   </section>
 </div>
@@ -70,6 +73,7 @@
   const filePreview = document.getElementById('filePreview');
   const fileUpload = document.getElementById('fileUpload');
   const fileList = document.getElementById('fileList');
+  const fileProgress = document.getElementById('fileProgress');
 
   function handleFiles() {
     const files = this.files;
@@ -165,6 +169,16 @@
           }
         }
       };
+      xhr.upload.addEventListener('progress', function (e) {
+        if (e.lengthComputable) {
+          var precent = Math.floor((e.loaded / e.total) * 100);
+          fileProgress.style.display = 'block';
+          fileProgress.value = precent;
+          fileProgress.innerHTML = precent + '%';
+        } else {
+          console.log('unable to compute progress information');
+        }
+      });
       xhr.open('POST', '/api/upload');
       xhr.send(formData);
     },
