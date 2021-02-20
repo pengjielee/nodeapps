@@ -1,0 +1,188 @@
+<section>
+  <h2>上传单个文件</h2>
+  <form action="/api/upload/single" method="post" enctype="multipart/form-data">
+    <input type="file" name="file" accept="image/*" required="true" />
+    <button>上传</button>
+  </form>
+</section>
+
+<section>
+  <h2>上传多个文件</h2>
+  <form action="/api/upload/more" method="post" enctype="multipart/form-data">
+    <input type="file" name="files" accept="image/*" multiple required="true" />
+    <button>上传</button>
+  </form>
+</section>
+
+<section>
+  <h2>Ajax上传文件</h2>
+  <input type="file" name="files" accept="image/*" multiple style="display: none" id="ajaxInput" />
+  <button id="ajaxBtn">上传</button>
+  <progress id="ajaxProgress" max="100" value="0">0%</progress>
+</section>
+
+<section>
+  <h2>大上传文件</h2>
+  <input type="file" name="file" required="true" id="fileInput" />
+  <button id="fileUpload">上传</button>
+</section>
+
+<script>
+  const ajaxUpload = function () {
+    const ajaxInput = document.getElementById('ajaxInput');
+    const ajaxBtn = document.getElementById('ajaxBtn');
+    const ajaxProgress = document.getElementById('ajaxProgress');
+
+    ajaxBtn.addEventListener(
+      'click',
+      function () {
+        ajaxInput.click();
+      },
+      false,
+    );
+
+    ajaxInput.addEventListener(
+      'change',
+      function () {
+        const files = this.files;
+        if (files.length <= 0) {
+          alert('请至少选择一个文件');
+          return;
+        }
+
+        var fd = new FormData();
+        for (let i = 0; i < files.length; i++) {
+          fd.append('files', files[i]);
+        }
+        var xhr = new XMLHttpRequest();
+        xhr.onload = function (e) {
+          if (xhr.status === 200) {
+            var response = JSON.parse(xhr.responseText);
+            console.log(response);
+          }
+        };
+        xhr.upload.addEventListener('progress', function (e) {
+          if (e.lengthComputable) {
+            var precent = Math.floor((e.loaded / e.total) * 100);
+            ajaxProgress.value = precent;
+            ajaxProgress.innerHTML = precent + '%';
+          } else {
+            console.log('unable to compute progress information');
+          }
+        });
+        xhr.open('POST', '/api/upload/more');
+        xhr.send(fd);
+      },
+      false,
+    );
+  };
+  ajaxUpload();
+
+  const bigFileUpload = function () {
+    const fileInput = document.querySelector('#fileInput');
+    const fileUpload = document.querySelector('#fileUpload');
+
+    const CHUNK_SIZE = 2 * 1024 * 1024; //设置切片大小2MB
+
+    //文件切片
+    const slice = (file, piece = 1024 * 1024 * 5) => {
+      const totalSize = file.size; // 文件总大小
+      let start = 0; // 每次上传的开始字节
+      let end = start + piece; // 每次上传的结尾字节
+      const chunks = [];
+      while (start < totalSize) {
+        const blob = file.slice(start, end);
+        chunks.push(blob);
+
+        start = end;
+        end = start + piece;
+      }
+      return chunks;
+    };
+
+    const obj2str = obj => {
+      let w = Object.entries(obj);
+      w.forEach((v, i) => {
+        w[i] = v.join('=');
+      });
+      return w.join('&');
+    };
+
+    //上传切片
+    const uploadChunk = formData => {
+      return new Promise((resolve, reject) => {
+        var xhr = new XMLHttpRequest();
+        xhr.onload = function (e) {
+          if (xhr.status === 200) {
+            resolve(xhr.responseText);
+          } else {
+            reject('error');
+          }
+        };
+        xhr.onerror = function (e) {
+          reject(e);
+        };
+        xhr.open('POST', '/api/chunk/upload');
+        xhr.send(formData);
+      });
+    };
+
+    //合并切片
+    const mergeChunk = data => {
+      return new Promise((resolve, reject) => {
+        var xhr = new XMLHttpRequest();
+
+        xhr.onload = function (e) {
+          if (xhr.status === 200) {
+            resolve(xhr.responseText);
+          } else {
+            reject('error');
+          }
+        };
+        xhr.onerror = function (e) {
+          reject(e);
+        };
+        xhr.open('POST', '/api/chunk/merge');
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.send(obj2str(data));
+      });
+    };
+
+    // 生成上传切片任务数组
+    const createTasks = (file, chunks) => {
+      let tasks = [];
+      chunks.forEach((chunk, index) => {
+        let fd = new FormData();
+        fd.append('file', chunk);
+        fd.append('index', index + 1);
+        fd.append('name', file.name);
+        fd.append('size', file.size);
+        fd.append('total', chunks.length);
+        fd.append('hash', file.name + file.size); //以文件名+大小作为文件唯一标识符
+        tasks.push(uploadChunk(fd));
+      });
+      return tasks;
+    };
+
+    fileUpload.addEventListener(
+      'click',
+      function () {
+        const file = fileInput.files[0];
+        let chunks = slice(file, CHUNK_SIZE);
+        const tasks = createTasks(file, chunks);
+        Promise.all(tasks).then(res => {
+          console.log(res);
+          const data = {
+            name: file.name,
+            size: file.size,
+            total: chunks.length,
+            hash: file.name + file.size,
+          };
+          mergeChunk(data).then(res => console.log(res));
+        });
+      },
+      false,
+    );
+  };
+  bigFileUpload();
+</script>

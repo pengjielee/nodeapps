@@ -11,7 +11,7 @@ module.exports = {
   useTabs: false,
   overrides: [
     {
-      files: "*.hbs",
+      files: "*.{html}",
       options: {
         parser: "angular",
         htmlWhitespaceSensitivity: "ignore",

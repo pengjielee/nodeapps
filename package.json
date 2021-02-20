@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "prettier:check": "prettier --check examples/**/*.{js,json}",
-    "prettier": "prettier --write examples/**/*.{js,json} examples/**/**/*.{js,hbs} examples/**/**/**/*.{hbs,css,js}"
+    "prettier": "prettier --write examples/**/*.{js,json,html} examples/**/**/*.{js,html} examples/**/**/**/*.{css,js}"
   },
   "devDependencies": {
     "prettier": "^2.2.1"
